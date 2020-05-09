@@ -1,6 +1,6 @@
 # Simple Backup
 
-A very simple backup script with configurable profiles and backup paths that uses tar as file compressor
+A very simple backup script with configurable profiles and backup paths that uses tar as a file compressor
 
 ## Installation
 
