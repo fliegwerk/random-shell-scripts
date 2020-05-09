@@ -1,0 +1,65 @@
+#!/bin/sh
+set -e
+
+## simple-backup
+## very simple backup script with configurable profiles and backup paths
+## by fliegwerk
+## (c) 2020. MIT License
+
+CONFIG="/etc/simple-backup.conf"
+CONFIG_DIR="/etc/simple-backup.d"
+EXIT_SUCCESS=0
+EXIT_FAILURE=1
+
+[ $# -eq 0 ] || [ "$1" = "-h" ] || [ "$1" = "--help" ] && \
+    { printf "Usage: %s <profile-name>\n" "$(basename "$0")"; exit 0; }
+
+[ "$(id -u)" -ne 0 ] && { printf "Root privileges required\n"; exit $EXIT_FAILURE; }
+
+# config checks
+if [ -r "$CONFIG" ]; then
+    # shellcheck source=etc/simple-backup.conf
+    . "$CONFIG"
+else
+    printf "%s is not readable\n" "$CONFIG"
+    exit $EXIT_FAILURE
+fi
+if ! [ -d "$CONFIG_DIR" ]; then
+    printf "%s is not available\n" "$CONFIG_DIR"
+    exit $EXIT_FAILURE
+fi
+
+# pull all profiles
+all_profiles="$(cat ${CONFIG_DIR}/* | cut -d"=" -f1)"
+
+[ "$1" = "-l" ] || [ "$1" = "--list" ] && { printf "%s\n" "$all_profiles"; exit 0; }
+if [ "$1" = "all" ]; then
+    profiles="$all_profiles"
+else
+    profiles="$*"
+fi
+
+mkdir -p "$BACKUP_DIR"
+printf "Backup directory: %s\n" "$BACKUP_DIR"
+DATE=$(date --iso-8601='seconds' | tr -d ":")
+
+for profile in $profiles; do
+    # pull data locations with profile name in config directory
+    data_locations=$(grep -a -m 1 -h -r "$profile" $CONFIG_DIR | tail -1 | cut -d"=" -f2)
+    [ -z "$data_locations" ] && \
+        { printf "Data location(s) for %s is not set\n" "$profile"; exit $EXIT_FAILURE; }
+    
+    for data_location in $data_locations; do
+        [ -e "$data_location" ] || \
+            { printf "Data path %s for %s does not exist\n" "$data_location" "$profile"; exit 1; }
+    done
+    printf "Backup for %s. Selected targets: %s\n" "$profile" "$data_locations"
+
+    mkdir -p "${BACKUP_DIR}/$profile"
+    # shellcheck disable=SC2086
+    tar --totals $COMPRESSION_ARGS --create --file "${BACKUP_DIR}/${profile}/${DATE}.${ARCHIVE_SUFFIX}" -- $data_locations
+
+    printf "Backup for %s done\n" "$profile"
+done
+
+exit $EXIT_SUCCESS
