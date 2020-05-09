@@ -1,4 +1,8 @@
-# Random shell scripts
+<p align="center">
+  <img height="300" src="./branding/logo/light-bg-export.svg">
+</p>
+
+# Random Shell Scripts
 Some random shell scripts used at fliegwerk by fliegwerk
 
 Some scripts are sorted by they purpose others are too small or too large to fit into these structure and obtain its own directory.
