@@ -1,3 +1,7 @@
+<p align="center">
+  <img height="300" src="./branding/logo/light-bg-export.svg">
+</p>
+
 # Random shell scripts
 Some random shell scripts used at fliegwerk by fliegwerk
 
