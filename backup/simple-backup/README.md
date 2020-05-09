@@ -45,7 +45,7 @@ root-home=/root
 log=/var/log
 ```
 
-You can add many more profile config files as you like, for example:
+You can add many more profile config files, for example:
 ```
 /etc/simple-backup.d/
 |-- system.conf
