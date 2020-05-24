@@ -1,6 +1,6 @@
 # Simple Backup
 
-A very simple backup script with configurable profiles and backup paths that uses tar as file compressor
+A very simple backup script with configurable profiles and backup paths that uses tar as a file compressor
 
 ## Installation
 
@@ -45,7 +45,7 @@ root-home=/root
 log=/var/log
 ```
 
-You can add many more profile config files as you like, for example:
+You can add many more profile config files, for example:
 ```
 /etc/simple-backup.d/
 |-- system.conf
