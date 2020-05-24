@@ -1,0 +1,22 @@
+#!/bin/sh
+
+set -e
+
+## Sync boot partitions
+## simple script to sync all files between two EFI boot partitions
+## by fliegwerk
+## (c) 2020. MIT License
+
+CONFIG_FILE="/etc/sync-boot-partitions.conf"
+
+[ "$1" = "-h" ] || [ "$1" = "--help" ] && { printf "Usage: %s [--only-init]\n" "$(basename "$0")"; exit 0; }
+
+[ -r "$CONFIG_FILE" ] || { printf "Configuration file not found\n"; exit 1; }
+# shellcheck source=sync-boot-partitions.conf
+. "$CONFIG_FILE"
+
+if [ "$1" = "--only-init" ]; then
+    rsync -qPrt --delete --filter="+ /*.img" --filter="+ /*linux" --filter="- *" "${BOOT_MOUNT}/" "${BOOT_BACKUP_MOUNT}/"
+else
+    rsync -qPrt --delete "${BOOT_MOUNT}/" "${BOOT_BACKUP_MOUNT}/"
+fi
