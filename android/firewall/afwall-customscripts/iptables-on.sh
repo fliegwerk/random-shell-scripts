@@ -55,5 +55,6 @@ $IP6TABLES -P OUTPUT DROP
 #############################
 # check/apply custom rules  #
 #############################
-# source script
+# comment out what you don't like
 . /data/local/apply-custom-rules.sh
+. /data/local/apply-tethering-rules.sh

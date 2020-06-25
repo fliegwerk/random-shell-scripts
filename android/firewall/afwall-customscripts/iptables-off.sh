@@ -22,8 +22,9 @@ IP6TABLES=/system/bin/ip6tables
 #############################
 # delete custom rules       #
 #############################
-# source script
+# 
 . /data/local/delete-custom-rules.sh
+. /data/local/delete-tethering-rules.sh
 
 ####################
 # Defaults         #

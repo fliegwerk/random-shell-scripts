@@ -48,10 +48,16 @@ They also release some the very persistent connections to Google like the DNS se
 
 You can edit the rules as you like, add remove or modify all lines.
 
+You can comment out the script sourcing parts in the `iptables-on.sh` and `iptables-off.sh` files you don't like.
+
 A very good guide how to use iptables:
 <https://www.frozentux.net/iptables-tutorial/iptables-tutorial.html>
 
 If you have modified some content please repeat all steps in the [Installation section](#installation).
+
+## Tests
+
+Tested with [LineageOS](https://lineageos.org/) 17.1 on a officially supported OnePlus device.
 
 ## Issues and Contributing
 
