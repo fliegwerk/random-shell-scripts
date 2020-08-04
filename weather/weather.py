@@ -2,7 +2,9 @@
 import pyowm
 import os
 
-API_key = "229c25e22cfd9c434134d5c88a1ae588"
+API_key = "" # insert your API key
+if not key:
+    print("No API key specified")
 owm = pyowm.OWM(API_key, language='de')
 
 owm.is_API_online()
