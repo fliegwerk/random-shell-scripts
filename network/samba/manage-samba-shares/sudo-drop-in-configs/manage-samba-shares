@@ -1,0 +1,5 @@
+ludwig ALL = (ALL) NOPASSWD: /usr/local/bin/manage-samba-shares mount ludwig
+ludwig ALL = (ALL) NOPASSWD: /usr/local/bin/manage-samba-shares umount ludwig
+
+buechner ALL = (ALL) NOPASSWD: /usr/local/bin/manage-samba-shares mount buechner
+buechner ALL = (ALL) NOPASSWD: /usr/local/bin/manage-samba-shares umount buechner

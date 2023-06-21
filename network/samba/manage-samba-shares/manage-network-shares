@@ -1,0 +1,73 @@
+#!/bin/sh
+
+set -e
+
+# mounts network-shares for homeserver given by username
+# by Ludwig Richter <riluzm@posteo.de>
+
+CONFIG_FILE="/etc/manage-network-shares.conf"
+PRESET_DIR="/etc/manage-network-shares.d"
+
+[ -r "$CONFIG_FILE" ] || { printf "Can not read config file\n"; exit 1; }
+# shellcheck source=manage-network-shares.conf
+. "$CONFIG_FILE"
+
+[ "$(id -u)" -ne 0 ] && { printf "Root privileges required\n"; exit 1; }
+
+action="$1"
+username="$2"
+
+case "$action" in
+    m|mount)
+        getent passwd "$username" > /dev/null 2>&1 || { printf "No user %s found\n" "$username"; exit 1; }
+        uid="$(id -u "$username")"
+        
+        # pull shares to mount
+        shares="$(grep -a -m 1 -h -r "$username" "$PRESET_DIR" | tail -1 | cut -d"=" -f2)"
+        
+        for share in $shares; do
+            network_share="//${SERVER_NAME}/${share}"
+            mount_dir="${MOUNT_ROOT_DIR}/${username}/${share}"
+            credentials_file="${CREDENTIALS_DIR}/${SERVER_NAME}-${username}"
+            
+            # final pre-mount checks
+            [ -d "$mount_dir" ] || { printf "Mount directory %s not found\n" "$mount_dir"; exit 1; }
+            drill "$SERVER_NAME" > /dev/null 2>&1 || { printf "Can not reach server %s\n" "$SERVER_NAME"; exit 1; }
+            
+            mount -t cifs "$network_share" "$mount_dir" -o vers=3,credentials="$credentials_file",rw,uid="$uid",gid="$uid",file_mode=0640,dir_mode=0750 || {
+                printf "Error in mounting network share %s for %s\n" "$share" "$username"
+            }
+        done
+        ;;
+    u|umount)
+        if [ -z "$username" ]; then
+            # unmount all cifs shares lazy
+            umount -a -t cifs -l
+        else
+            # unmount all cifs shares for given user
+            getent passwd "$username" > /dev/null 2>&1 || { printf "No user %s found\n" "$username"; exit 1; }
+            uid="$(id -u "$username")"
+    
+            # pull shares to mount
+            shares="$(grep -a -m 1 -h -r "$username" "$PRESET_DIR" | tail -1 | cut -d"=" -f2)"
+            
+            for share in $shares; do
+                mount_dir="${MOUNT_ROOT_DIR}/${username}/${share}"
+                
+                # final pre-umount checks
+                [ -d "$mount_dir" ] || { printf "Mount directory %s not found\n" "$mount_dir"; exit 1; }
+                
+                umount -t cifs -l "$mount_dir" || {
+                    printf "Error in unmounting network share %s for %s\n" "$share" "$username"
+                }
+            done
+        fi
+        ;;
+    -h|--help)
+        printf "Usage: %s mount|umount <username>\n" "$(basename "$0")"
+        ;;
+    *)
+        printf "Unknown action: %s\n" "$action"
+        exit 1
+        ;;
+esac
